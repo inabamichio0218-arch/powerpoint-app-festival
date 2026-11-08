@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#09234a">
+<title>スマホで学べる！ 遊べる！ パワーポイントアプリ</title>
+<style>
+*{box-sizing:border-box}
+html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#060d21;color:#fff;font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif}
+button,a{font:inherit}
+button{cursor:pointer}
+button:focus-visible,a:focus-visible{outline:4px solid #fff000;outline-offset:4px}
+main{width:100%;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden}
+#stage{position:relative;flex:none;width:min(100vw,177.6833156dvh);height:auto;aspect-ratio:1672/941;max-height:100dvh;overflow:hidden;background:#082754 url('assets/poster.png') center/100% 100% no-repeat;box-shadow:0 0 40px #0008}
+#hotspots{position:absolute;inset:0}
+.hotspot{position:absolute;border:0;border-radius:13%;background:transparent;color:transparent;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.hotspot:hover,.hotspot:focus-visible{outline:4px solid #ffe328;outline-offset:-2px;background:#ffe3281f;filter:drop-shadow(0 0 8px #ffe328)}
+.hotspot:active{background:#ffe32842;transform:scale(.984)}
+/* Positions measured from the supplied 1672×941 image. Include icon and label. */
+.hotspot:nth-child(1){left:33.4%;top:34.0%;width:12.3%;height:29%}
+.hotspot:nth-child(2){left:46.1%;top:34.0%;width:12.6%;height:29%}
+.hotspot:nth-child(3){left:59.1%;top:34.0%;width:12.7%;height:29%}
+.hotspot:nth-child(4){left:71.8%;top:34.0%;width:12.7%;height:29%}
+.hotspot:nth-child(5){left:84.7%;top:34.0%;width:13.2%;height:29%}
+.hotspot:nth-child(6){left:34.5%;top:64.5%;width:12.2%;height:29%}
+.hotspot:nth-child(7){left:46.8%;top:64.5%;width:12.7%;height:29%}
+.hotspot:nth-child(8){left:59.8%;top:64.5%;width:12.7%;height:29%}
+.hotspot:nth-child(9){left:72.1%;top:64.5%;width:12.7%;height:29%}
+.hotspot:nth-child(10){left:84.7%;top:64.5%;width:13.2%;height:29%}
+#detail{display:none;position:absolute;inset:0;background:radial-gradient(ellipse at 32% 38%,#224a84 0,#091d41 47%,#060f28 100%);z-index:5}
+#detail.open{display:flex;flex-direction:column}
+.detail-head{min-height:11%;padding:1% 3%;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #ffffff27;gap:2%}
+.detail-title{display:flex;align-items:center;gap:14px;font-weight:900;font-size:clamp(13px,2.1vw,34px);line-height:1.15;min-width:0}
+.detail-title img{width:clamp(24px,5vw,67px);aspect-ratio:1;object-fit:contain;flex:none;border-radius:20%}
+#back{border:2px solid #d3e1ff;background:linear-gradient(#f8fcff,#c6dcff);color:#0d2655;border-radius:999px;padding:.55em 1.25em;font-weight:900;font-size:clamp(12px,1.35vw,22px);white-space:nowrap}
+#back:hover{background:#ffe983}
+.detail-content{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;gap:clamp(16px,5%,88px);padding:1.4% 4% 2%}
+.game-wrap{height:96%;max-width:44%;min-width:0;aspect-ratio:9/16;background:#071128;border:8px solid #e3edff;border-radius:22px;box-shadow:0 0 0 3px #ffffff44,0 12px 32px #0009;overflow:hidden;display:flex;align-items:center;justify-content:center}
+#game{width:100%;height:100%;border:0;background:white}
+#no-link{display:none;padding:22px;text-align:center;line-height:1.7;font-size:clamp(13px,1.6vw,24px);font-weight:750}
+.details{width:42%;max-height:95%;min-height:0;text-align:center;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:clamp(8px,1.8vh,24px)}
+.details h2{margin:0;font-size:clamp(18px,2.5vw,37px);line-height:1.3}
+#qr{display:block;width:min(23vw,26vh,275px);aspect-ratio:1;object-fit:contain;background:white;border:9px solid white;border-radius:12px;box-shadow:0 4px 20px #0006}
+#qr:not([src]){display:none}
+#qr-note{font-size:clamp(12px,1.3vw,20px);font-weight:850;color:#ffee80}
+#status{font-size:clamp(12px,1.15vw,18px);line-height:1.5;max-width:90%;color:#e5eeff}
+#open-game{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;background:linear-gradient(120deg,#ffe55d,#ffa537);color:#1e2342;font-weight:900;border-radius:999px;font-size:clamp(13px,1.5vw,24px);padding:.6em 1.3em;min-height:40px}
+#open-game[hidden]{display:none}
+#preview-warning{display:none;max-width:95%;padding:8px 14px;border:1px solid #ffd074;border-radius:10px;color:#ffe4a1;background:#7a4b1633;font-size:clamp(12px,1.1vw,17px);line-height:1.45}
+#preview-warning.show{display:block}
+@media(max-width:650px){.detail-head{min-height:13%}.detail-content{gap:2%;padding:1.5% 2%}.game-wrap{border-width:3px;border-radius:8px}.details{width:51%}#qr{border-width:4px}#preview-warning{padding:2px 4px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+
+</head>
+<body>
+<main>
+<section id="stage" aria-label="文化祭 パワーポイントアプリ メニュー">
+<nav id="hotspots" aria-label="10個のアプリを選ぶ"></nav>
+<section id="detail" aria-label="選んだアプリ">
+ <header class="detail-head">
+  <div class="detail-title"><img id="detail-icon" src="assets/finger.png" alt=""><span id="detail-title-text">アプリ</span></div>
+  <button type="button" id="back">⌂ トップメニューにもどる</button>
+ </header>
+ <div class="detail-content">
+  <div class="game-wrap"><iframe id="game" title="選んだゲーム" loading="eager" allowfullscreen></iframe><div id="no-link">こちらにゲームが表示されます。<br>公開URLを登録すると使えます。</div></div>
+  <div class="details">
+   <h2 id="detail-sub">遊んでみよう！</h2>
+   <img id="qr" alt="">
+   <div id="qr-note">スマホでも遊べるよ！</div>
+   <div id="status"></div>
+   <a id="open-game" target="_blank" rel="noopener noreferrer">ゲームを別画面で開く</a>
+   <div id="preview-warning" role="status"></div>
+  </div>
+ </div>
+</section>
+</section>
+</main>
+
+<script src="links.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded',()=>{'use strict';
+const $=(q)=>document.querySelector(q);
+const ids=['finger','halloween','pita','tetromino','voxel','goza','ufo','fraction','coin','slider'];
+const items=window.APP_LINKS||[];
+const byId=new Map(items.map(a=>[a.id,a]));
+let selected=null;
+let previousHotspot=null;
+const hotspotWrap=$('#hotspots');
+ids.forEach(id=>{
+  const app=byId.get(id);if(!app)return;
+  const btn=document.createElement('button');btn.type='button';btn.className='hotspot';
+  btn.setAttribute('aria-label',app.title+'を選ぶ');btn.title=app.title;
+  btn.addEventListener('click',()=>{previousHotspot=btn;showApp(id)});hotspotWrap.append(btn);
+});
+function showApp(id){
+ const a=byId.get(id);if(!a)return;selected=id;
+ $('#detail').classList.add('open');$('#hotspots').setAttribute('aria-hidden','true');$('#hotspots').setAttribute('inert','');
+ $('#detail-title-text').textContent=a.title;$('#detail-icon').src=a.icon;
+ $('#detail-sub').textContent=a.label;
+ const hasUrl=Boolean(a.url&&/^https:\/\//.test(a.url));
+ 
+ const game=$('#game'),empty=$('#no-link'),qr=$('#qr'),open=$('#open-game'),status=$('#status'),warning=$('#preview-warning');
+ game.removeAttribute('src');
+ game.style.display=hasUrl?'block':'none';empty.style.display=hasUrl?'none':'block';
+ if(hasUrl){game.src=a.url;open.href=a.url;open.hidden=false;} else {open.removeAttribute('href');open.hidden=true;}
+ qr.removeAttribute('src');qr.alt='';
+ if(hasUrl){
+   qr.src=a.qr;qr.alt=a.title+' のQRコード';
+   status.textContent='QRコードをスマホで読み取ると、このゲームを開けます。';
+   warning.classList.remove('show');
+ } else {
+   status.textContent='公開URLがまだ登録されていません。';
+   warning.classList.add('show');warning.textContent='リンク先を確認してください。';
+ }
+ $('#back').focus({preventScroll:true});
+}
+function back(){
+ if(!selected)return;selected=null;
+ $('#game').removeAttribute('src');$('#detail').classList.remove('open');
+ $('#hotspots').removeAttribute('aria-hidden');$('#hotspots').removeAttribute('inert');
+ // A single back button always returns to the top image.
+ if(previousHotspot)previousHotspot.focus({preventScroll:true});
+}
+$('#back').addEventListener('click',back);
+document.addEventListener('keydown',(e)=>{if(e.key==='Escape'&&selected)back()});
+// The kiosk itself must not move when an in-app browser receives a touch swipe.
+document.addEventListener('touchmove',(e)=>{
+ const path=e.composedPath();
+ // Scrolling inside the game iframe is handled by its own document.
+ if(!path.some(n=>n&&n.tagName==='IFRAME') &&e.touches.length===1 &&e.cancelable)e.preventDefault();
+},{passive:false});
+});
+</script>
+</body>
+</html>
