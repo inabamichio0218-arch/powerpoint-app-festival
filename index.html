@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#09234a">
 <title>スマホで学べる！ 遊べる！ パワーポイントアプリ</title>
-<!-- v7: phone detail layout prevents back button from covering QR; kiosk 16:9 unchanged -->
+<!-- v8: mobile app launcher instead of clipped iframe; kiosk layout remains unchanged -->
 <style>
 *{box-sizing:border-box}
 html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#060d21;color:#fff;font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif}
@@ -186,6 +186,40 @@ main{width:100%;height:100%;display:flex;align-items:center;justify-content:cent
   #qr-note {font-size:clamp(14px,2.2vw,18px);}
   #status {font-size:clamp(12px,1.7vw,15px);line-height:1.3;}
 }
+
+/* Phone app-launch screen: not a tiny, non-responsive iframe. */
+.mobile-launch { display:none; }
+@media (max-width:760px), (max-height:540px) {
+  .detail-content { justify-content:center; }
+  .game-wrap, .details { display:none !important; }
+  .mobile-launch {
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    width:min(100%,540px); gap:22px; padding:14px 8px;
+    pointer-events:auto; text-align:center;
+  }
+  .mobile-cover {display:block; width:min(37vw,180px); aspect-ratio:1; border-radius:24%; overflow:hidden;
+    box-shadow:0 0 0 3px #e5efff,0 8px 24px #0009; flex:0 0 auto; }
+  #mobile-app-icon {display:block;width:100%;height:100%;object-fit:cover;}
+  .mobile-launch-text {width:100%; display:flex;flex-direction:column;align-items:center;gap:17px;}
+  .mobile-intro {font-size:clamp(16px,4.1vw,22px);font-weight:800;line-height:1.3;margin:0;color:#e9f3ff;}
+  #mobile-play {display:block;width:min(95%,470px);border:3px solid #fefefe;border-radius:20px;
+    padding:20px 12px; font-size:clamp(22px,6.1vw,31px);line-height:1.25;font-weight:950;
+    color:#071d42;text-decoration:none;background:linear-gradient(#fff09b,#ffce3d);
+    box-shadow:0 5px 0 #bc830d,0 8px 24px #0008;}
+  #mobile-play:active{transform:translateY(3px);box-shadow:0 2px 0 #bc830d,0 4px 10px #0007;}
+  #mobile-play[hidden],.mobile-cover[hidden]{display:none!important;}
+  .mobile-hint{max-width:95%;font-size:clamp(14px,3.75vw,19px);font-weight:650;
+    line-height:1.6;margin:0;color:#c8dbfa;}
+}
+@media (orientation:landscape) and (max-height:540px) {
+  .detail-content {flex-direction:column;align-items:center;justify-content:center;padding-top:8px;padding-bottom:10px;}
+  .mobile-launch {flex-direction:row;align-items:center;gap:22px; width:min(92%,700px);padding:0 8px;}
+  .mobile-cover {width:min(27vh,155px); border-radius:19%;}
+  .mobile-launch-text {flex:1; gap:10px;}
+  .mobile-intro{font-size:clamp(14px,2.5vw,18px);}
+  #mobile-play{font-size:clamp(19px,3.3vw,26px);padding:13px 8px;border-radius:14px;}
+  .mobile-hint{font-size:clamp(12px,2.1vw,15px);line-height:1.35;}
+}
 </style>
 
 </head>
@@ -199,6 +233,15 @@ main{width:100%;height:100%;display:flex;align-items:center;justify-content:cent
   <button type="button" id="back">⌂ トップメニューにもどる</button>
  </header>
  <div class="detail-content">
+  <!-- Shown only on phones: open the actual app at native size. QR/iframe remain for exhibition monitors. -->
+  <div class="mobile-launch" aria-label="スマホでアプリを開く">
+    <a id="mobile-cover-link" class="mobile-cover" aria-label="このアプリを開く"><img id="mobile-app-icon" src="" alt="アプリアイコン"></a>
+    <div class="mobile-launch-text">
+      <p class="mobile-intro">ここはアプリの紹介画面です</p>
+      <a id="mobile-play">このアプリで遊ぶ <span aria-hidden="true">↗</span></a>
+      <p class="mobile-hint">ボタンを押すと、大きな画面でアプリが開きます。</p>
+    </div>
+  </div>
   <div class="game-wrap"><iframe id="game" title="選んだゲーム" loading="eager" allowfullscreen></iframe><div id="no-link">こちらにゲームが表示されます。<br>公開URLを登録すると使えます。</div></div>
   <div class="details">
    <h2 id="detail-sub">遊んでみよう！</h2>
@@ -329,12 +372,18 @@ function showApp(id){
  $('#detail').classList.add('open');$('#hotspots').setAttribute('aria-hidden','true');$('#hotspots').setAttribute('inert','');
  $('#detail-title-text').textContent=a.title;$('#detail-icon').src=a.icon;
  $('#detail-sub').textContent=a.label;
+ // Mobile: link directly to the original Web app instead of showing a tiny iframe.
+ const mobilePlay=$('#mobile-play'),mobileCover=$('#mobile-cover-link');
+ $('#mobile-app-icon').src=a.icon;
  const hasUrl=Boolean(a.url&&/^https:\/\//.test(a.url));
+ mobilePlay.hidden=!hasUrl;mobileCover.hidden=!hasUrl;
+ if(hasUrl){mobilePlay.href=a.url;mobileCover.href=a.url;}
+ else {mobilePlay.removeAttribute('href');mobileCover.removeAttribute('href');}
  
  const game=$('#game'),empty=$('#no-link'),qr=$('#qr'),status=$('#status'),warning=$('#preview-warning');
  game.removeAttribute('src');
  game.style.display=hasUrl?'block':'none';empty.style.display=hasUrl?'none':'block';
- if(hasUrl){game.src=a.url;}
+ if(hasUrl && !window.matchMedia('(max-width:760px), (max-height:540px)').matches){game.src=a.url;}
  qr.removeAttribute('src');qr.alt='';
  if(hasUrl){
    qr.src=a.qr;qr.alt=a.title+' のQRコード';
