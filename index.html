@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#09234a">
 <title>スマホで学べる！ 遊べる！ パワーポイントアプリ</title>
-<!-- v9: mobile viewer has one-tap return to app list; 16:9 exhibition unchanged -->
+<!-- v11: responsive mobile menu + full-phone-screen viewer, 16:9 exhibition unchanged -->
 <style>
 *{box-sizing:border-box}
 html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#060d21;color:#fff;font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif}
@@ -304,6 +304,115 @@ main{width:100%;height:100%;display:flex;align-items:center;justify-content:cent
   #mobile-return {padding:6px 10px; font-size:14px;}
   .mobile-player-foot {min-height:28px; padding-top:2px;padding-bottom:2px;}
 }
+
+/* v10: use the ENTIRE phone viewport for the game. A small floating
+   return control overlays one corner instead of reserving a header/footer. */
+@media (max-width:760px), (max-height:540px) {
+  #mobile-player.open {
+    isolation:isolate;
+  }
+  #mobile-player .mobile-player-view {
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    display:block;
+    z-index:1;
+  }
+  #mobile-player #mobile-game-frame {
+    display:block;
+    width:100%;
+    height:100%;
+  }
+  #mobile-player .mobile-player-bar {
+    position:absolute;
+    top:max(8px,env(safe-area-inset-top));
+    left:max(8px,env(safe-area-inset-left));
+    right:auto;
+    width:auto;
+    min-height:0;
+    height:auto;
+    padding:0;
+    margin:0;
+    border:none;
+    background:transparent;
+    z-index:4;
+    pointer-events:none;
+  }
+  #mobile-player #mobile-return {
+    pointer-events:auto;
+    min-height:44px;
+    max-width:none;
+    padding:9px 11px;
+    border:2px solid #c5dcff;
+    border-radius:13px;
+    background:rgba(235,246,255,.95);
+    color:#092857;
+    font-size:14px;
+    line-height:1.2;
+    font-weight:900;
+    box-shadow:0 3px 12px rgba(0,0,0,.52);
+  }
+  #mobile-player #mobile-player-title,
+  #mobile-player .mobile-player-foot {
+    display:none;
+  }
+}
+
+/* v11: Mobile menu is newly composed for portrait displays; the 16:9 festival design is untouched. */
+#phone-menu{display:none}
+@media (max-width:760px), (max-height:540px) {
+  html,body{width:100%;height:100%;overflow:hidden;background:#061329}
+  main{display:none!important;}
+  #phone-menu{
+    display:block;width:100%;height:100dvh;overflow-x:hidden;overflow-y:auto;
+    overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch;
+    background:radial-gradient(ellipse at 50% 12%,#154b88 0%,#0a2958 45%,#061329 100%);
+    color:#fff;
+  }
+  .phone-menu-inner{width:min(100%,560px);margin:0 auto;padding:calc(env(safe-area-inset-top) + 17px) 14px calc(env(safe-area-inset-bottom) + 38px)}
+  .phone-menu-header{text-align:center;padding:3px 1px 11px}
+  .phone-brand{display:flex;align-items:center;justify-content:center;gap:9px;font-size:clamp(14px,4vw,19px);line-height:1.2;font-weight:850;letter-spacing:.02em}
+  .phone-p{flex:0 0 auto;display:grid;place-items:center;width:29px;height:29px;border-radius:7px;
+    background:linear-gradient(135deg,#ff9b36 0%,#ed491d 56%,#d70c37 100%);box-shadow:0 2px 0 #ffb66b44;
+    font-size:21px;color:white;font-weight:950}
+  .phone-menu-header h1{font-size:clamp(24px,7vw,36px);font-weight:950;line-height:1.2;letter-spacing:-.04em;
+    margin:8px 0 9px;color:#fff;text-shadow:0 3px 1px #071a3f,2px 2px 0 #357fc5}
+  .phone-menu-header p{display:inline-block;margin:0;padding:5px 14px 6px;border-radius:999px;background:#ffe877;
+    color:#082957;font-size:clamp(13px,3.65vw,17px);line-height:1.3;font-weight:900}
+  .phone-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;padding:8px 0 0}
+  .phone-app{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-width:0;min-height:140px;
+    border:2px solid #85b6f9;border-radius:18px;padding:9px 5px 8px;background:linear-gradient(155deg,#214e8b,#11325e 80%);
+    box-shadow:0 5px 12px #0006;color:white;text-align:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent
+  }
+  .phone-app:active{border-color:#fff28e;background:#315f95;transform:scale(.985)}
+  .phone-app:focus-visible{outline:4px solid #ffe329;outline-offset:2px}
+  .phone-app img{display:block;width:clamp(76px,22.4vw,106px);height:clamp(76px,22.4vw,106px);object-fit:cover;
+    border-radius:21%;box-shadow:0 1px 0 2px #fff9,0 3px 9px #0008}
+  .phone-app span{display:block;font-size:clamp(15px,4vw,20px);font-weight:950;line-height:1.2;
+    white-space:normal;overflow-wrap:anywhere;text-shadow:0 2px 1px #000b}
+  .phone-menu-foot{text-align:center;margin:17px 0 0;color:#c7dcfb;font-size:12px;font-weight:650}
+  #mobile-player .mobile-player-bar{
+    display:flex;justify-content:space-between;align-items:flex-start;
+    left:max(8px,env(safe-area-inset-left));right:max(8px,env(safe-area-inset-right));
+    width:auto;gap:8px;
+  }
+  #mobile-player #mobile-return{flex:0 0 auto;padding:9px 10px;font-size:clamp(12px,3.3vw,14px);min-height:42px}
+  #mobile-player #mobile-open-direct{display:block;flex:0 0 auto;min-height:42px;
+    padding:10px 10px;border:2px solid #b8d5ff;border-radius:13px;
+    color:#092857;background:rgba(235,246,255,.95);font-size:clamp(12px,3.2vw,14px);line-height:1.25;font-weight:900;
+    text-decoration:none;box-shadow:0 3px 12px #0008;pointer-events:auto}
+}
+@media (orientation:landscape) and (max-height:540px){
+  .phone-menu-inner{width:min(100%,850px);padding:calc(env(safe-area-inset-top) + 8px) max(12px,env(safe-area-inset-left)) calc(env(safe-area-inset-bottom) + 28px)}
+  .phone-menu-header{padding:0 0 5px}
+  .phone-menu-header h1{font-size:25px;margin:5px 0}
+  .phone-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}
+  .phone-app{min-height:115px;padding:8px 3px 6px;border-radius:13px}
+  .phone-app img{width:min(18dvh,66px);height:min(18dvh,66px)}
+  .phone-app span{font-size:clamp(11px,1.9vw,15px)}
+}
 </style>
 
 </head>
@@ -340,11 +449,25 @@ main{width:100%;height:100%;display:flex;align-items:center;justify-content:cent
 </section>
 </main>
 
-<!-- Phone viewer: keeps the menu page open while the selected game is played. -->
+<!-- iPhone/Android: portrait-first menu, independent of the fixed 16:9 festival poster. -->
+<section id="phone-menu" aria-label="10種類のパワーポイントアプリ">
+  <div class="phone-menu-inner">
+    <header class="phone-menu-header">
+      <div class="phone-brand"><span class="phone-p" aria-hidden="true">P</span><span>スマホで学べる！ 遊べる！</span></div>
+      <h1>パワーポイントアプリ</h1>
+      <p>好きなアプリをタップして遊ぼう！</p>
+    </header>
+    <nav id="phone-grid" class="phone-grid" aria-label="アプリ一覧"></nav>
+    <p class="phone-menu-foot">10種類のアプリが無料で遊べます</p>
+  </div>
+</section>
+
+<!-- Phone viewer: game fills screen; a floating button returns to the menu. -->
 <section id="mobile-player" role="dialog" aria-modal="true" aria-label="ゲーム画面">
   <header class="mobile-player-bar">
     <button type="button" id="mobile-return">‹ アプリ一覧にもどる</button>
     <span id="mobile-player-title">ゲーム</span>
+    <a id="mobile-open-direct" href="#" target="_blank" rel="noopener noreferrer">↗ 直接開く</a>
   </header>
   <div class="mobile-player-view"><iframe id="mobile-game-frame" title="ゲームをプレイ" allowfullscreen></iframe></div>
   <footer class="mobile-player-foot">
@@ -460,6 +583,26 @@ let previousHotspot=null;
 const isPhone=()=>window.matchMedia('(max-width:760px), (max-height:540px)').matches;
 const player=$('#mobile-player');
 const playerFrame=$('#mobile-game-frame');
+const phoneGrid=$('#phone-grid');
+let lastPhoneButton=null;
+function openPhoneApp(id,btn){
+ const a=byId.get(id);if(!a||!a.url)return;
+ selected=id;lastPhoneButton=btn||null;
+ $('#mobile-player-title').textContent=a.title;
+ $('#mobile-open-original').href=a.url;
+ $('#mobile-open-direct').href=a.url;
+ player.classList.add('open');
+ playerFrame.src=a.url;
+ $('#mobile-return').focus({preventScroll:true});
+}
+ids.forEach(id=>{
+ const a=byId.get(id);if(!a)return;
+ const btn=document.createElement('button');btn.type='button';btn.className='phone-app';
+ btn.setAttribute('aria-label',a.label+'を開いて遊ぶ');
+ const img=document.createElement('img');img.src=a.icon;img.alt='';img.loading='eager';
+ const label=document.createElement('span');label.textContent=a.label;
+ btn.append(img,label);btn.addEventListener('click',()=>openPhoneApp(id,btn));phoneGrid.appendChild(btn);
+});
 function openMobilePlayer(e){
  if(!isPhone() || !selected) return;
  const a=byId.get(selected);
@@ -467,6 +610,7 @@ function openMobilePlayer(e){
  e.preventDefault();
  $('#mobile-player-title').textContent=a.title;
  $('#mobile-open-original').href=a.url;
+ $('#mobile-open-direct').href=a.url;
  player.classList.add('open');
  $('#detail').setAttribute('inert','');
  playerFrame.src=a.url;
@@ -477,7 +621,8 @@ function closeMobilePlayer(){
  player.classList.remove('open');
  playerFrame.removeAttribute('src');
  $('#detail').removeAttribute('inert');
- back(); // Go directly to 10-app menu, not the app introduction.
+ back(); // Return to the menu (the mobile menu or the 16:9 poster).
+ if(lastPhoneButton)lastPhoneButton.focus({preventScroll:true});
 }
 $('#mobile-play').addEventListener('click',openMobilePlayer);
 $('#mobile-cover-link').addEventListener('click',openMobilePlayer);
