@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#09234a">
 <title>スマホで学べる！ 遊べる！ パワーポイントアプリ</title>
-<!-- v8: mobile app launcher instead of clipped iframe; kiosk layout remains unchanged -->
+<!-- v9: mobile viewer has one-tap return to app list; 16:9 exhibition unchanged -->
 <style>
 *{box-sizing:border-box}
 html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#060d21;color:#fff;font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif}
@@ -220,6 +220,90 @@ main{width:100%;height:100%;display:flex;align-items:center;justify-content:cent
   #mobile-play{font-size:clamp(19px,3.3vw,26px);padding:13px 8px;border-radius:14px;}
   .mobile-hint{font-size:clamp(12px,2.1vw,15px);line-height:1.35;}
 }
+
+/* v9 — Phone-only game viewer. The menu stays loaded underneath and
+   the app is allowed to fill the available iPhone viewport. */
+#mobile-player { display:none; }
+@media (max-width:760px), (max-height:540px) {
+  #mobile-player.open {
+    position:fixed;
+    inset:0;
+    z-index:1000;
+    display:flex;
+    flex-direction:column;
+    width:100vw;
+    height:100dvh;
+    overflow:hidden;
+    background:#06142d;
+    color:white;
+  }
+  .mobile-player-bar {
+    flex:none;
+    width:100%;
+    min-height:56px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    padding: max(7px, env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) 7px max(12px,env(safe-area-inset-left));
+    border-bottom:1px solid #5375a6;
+    background:#071e43;
+  }
+  #mobile-return {
+    flex:none;
+    padding:10px 12px;
+    background:#edf5ff;
+    border:2px solid #c5dcff;
+    border-radius:12px;
+    color:#082956;
+    font-size:clamp(14px,3.9vw,18px);
+    line-height:1.25;
+    font-weight:850;
+    box-shadow:0 2px 4px #0004;
+  }
+  #mobile-player-title {
+    min-width:0;
+    text-align:right;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    font-weight:750;
+    font-size:clamp(12px,3.25vw,16px);
+  }
+  .mobile-player-view {
+    flex:1 1 auto;
+    min-height:0;
+    width:100%;
+    overflow:hidden;
+    display:flex;
+    align-items:stretch;
+    justify-content:center;
+    background:#07152d;
+  }
+  #mobile-game-frame {display:block; width:100%;height:100%;border:0; background:#07152d;}
+  .mobile-player-foot {
+    flex:none;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:37px;
+    padding:5px 10px max(5px,env(safe-area-inset-bottom));
+    background:#071e43;
+    border-top:1px solid #314d77;
+  }
+  #mobile-open-original {
+    font-size:clamp(11px,3vw,14px);
+    color:#e0edff;
+    text-decoration:underline;
+    text-underline-offset:3px;
+  }
+  #mobile-play { cursor:pointer; }
+}
+@media (orientation:landscape) and (max-height:540px) {
+  .mobile-player-bar { min-height:44px; padding-top:3px; padding-bottom:3px; }
+  #mobile-return {padding:6px 10px; font-size:14px;}
+  .mobile-player-foot {min-height:28px; padding-top:2px;padding-bottom:2px;}
+}
 </style>
 
 </head>
@@ -239,7 +323,7 @@ main{width:100%;height:100%;display:flex;align-items:center;justify-content:cent
     <div class="mobile-launch-text">
       <p class="mobile-intro">ここはアプリの紹介画面です</p>
       <a id="mobile-play">このアプリで遊ぶ <span aria-hidden="true">↗</span></a>
-      <p class="mobile-hint">ボタンを押すと、大きな画面でアプリが開きます。</p>
+      <p class="mobile-hint">大きな画面で遊べます。終わったら「アプリ一覧にもどる」をタップ。</p>
     </div>
   </div>
   <div class="game-wrap"><iframe id="game" title="選んだゲーム" loading="eager" allowfullscreen></iframe><div id="no-link">こちらにゲームが表示されます。<br>公開URLを登録すると使えます。</div></div>
@@ -255,6 +339,19 @@ main{width:100%;height:100%;display:flex;align-items:center;justify-content:cent
 </section>
 </section>
 </main>
+
+<!-- Phone viewer: keeps the menu page open while the selected game is played. -->
+<section id="mobile-player" role="dialog" aria-modal="true" aria-label="ゲーム画面">
+  <header class="mobile-player-bar">
+    <button type="button" id="mobile-return">‹ アプリ一覧にもどる</button>
+    <span id="mobile-player-title">ゲーム</span>
+  </header>
+  <div class="mobile-player-view"><iframe id="mobile-game-frame" title="ゲームをプレイ" allowfullscreen></iframe></div>
+  <footer class="mobile-player-foot">
+    <a id="mobile-open-original" href="#" target="_blank" rel="noopener noreferrer">表示や操作がおかしい場合は、アプリを直接開く ↗</a>
+  </footer>
+</section>
+
 
 <script>
 // 文化祭で使用する10作品の公開URL。作品を別のURLに移したときはここを更新してください。
@@ -360,6 +457,31 @@ const items=window.APP_LINKS||[];
 const byId=new Map(items.map(a=>[a.id,a]));
 let selected=null;
 let previousHotspot=null;
+const isPhone=()=>window.matchMedia('(max-width:760px), (max-height:540px)').matches;
+const player=$('#mobile-player');
+const playerFrame=$('#mobile-game-frame');
+function openMobilePlayer(e){
+ if(!isPhone() || !selected) return;
+ const a=byId.get(selected);
+ if(!a || !a.url) return;
+ e.preventDefault();
+ $('#mobile-player-title').textContent=a.title;
+ $('#mobile-open-original').href=a.url;
+ player.classList.add('open');
+ $('#detail').setAttribute('inert','');
+ playerFrame.src=a.url;
+ $('#mobile-return').focus({preventScroll:true});
+}
+function closeMobilePlayer(){
+ if(!player.classList.contains('open')) return;
+ player.classList.remove('open');
+ playerFrame.removeAttribute('src');
+ $('#detail').removeAttribute('inert');
+ back(); // Go directly to 10-app menu, not the app introduction.
+}
+$('#mobile-play').addEventListener('click',openMobilePlayer);
+$('#mobile-cover-link').addEventListener('click',openMobilePlayer);
+$('#mobile-return').addEventListener('click',closeMobilePlayer);
 const hotspotWrap=$('#hotspots');
 ids.forEach(id=>{
   const app=byId.get(id);if(!app)return;
@@ -403,7 +525,7 @@ function back(){
  if(previousHotspot)previousHotspot.focus({preventScroll:true});
 }
 $('#back').addEventListener('click',back);
-document.addEventListener('keydown',(e)=>{if(e.key==='Escape'&&selected)back()});
+document.addEventListener('keydown',(e)=>{if(e.key==='Escape'){if(player.classList.contains('open'))closeMobilePlayer();else if(selected)back();}});
 // The kiosk itself must not move when an in-app browser receives a touch swipe.
 document.addEventListener('touchmove',(e)=>{
  const path=e.composedPath();
@@ -411,7 +533,8 @@ document.addEventListener('touchmove',(e)=>{
   // Let visitors scroll the responsive detail on an iPhone.
   const isPhoneDetail=$('#detail').classList.contains('open') &&
     window.matchMedia('(max-width:760px), (max-height:540px)').matches;
-  if(!isPhoneDetail && !path.some(n=>n&&n.tagName==='IFRAME') &&e.touches.length===1 &&e.cancelable)e.preventDefault();
+  const isPlaying=player.classList.contains('open');
+  if(!isPhoneDetail && !isPlaying && !path.some(n=>n&&n.tagName==='IFRAME') &&e.touches.length===1 &&e.cancelable)e.preventDefault();
 },{passive:false});
 });
 </script>
