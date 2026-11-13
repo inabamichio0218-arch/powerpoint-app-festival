@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#09234a">
 <title>スマホで学べる！ 遊べる！ パワーポイントアプリ</title>
-<!-- v11: responsive mobile menu + full-phone-screen viewer, 16:9 exhibition unchanged -->
+<!-- v13: fix touch scrolling in iPhone landscape menu; 16:9 exhibition unchanged -->
 <style>
 *{box-sizing:border-box}
 html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#060d21;color:#fff;font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif}
@@ -405,6 +405,9 @@ main{width:100%;height:100%;display:flex;align-items:center;justify-content:cent
     text-decoration:none;box-shadow:0 3px 12px #0008;pointer-events:auto}
 }
 @media (orientation:landscape) and (max-height:540px){
+  /* Allow the landscape menu to scroll to all 10 items on Safari. */
+  #phone-menu{height:100dvh;min-height:0;overflow-y:auto;touch-action:pan-y;
+    -webkit-overflow-scrolling:touch;}
   .phone-menu-inner{width:min(100%,850px);padding:calc(env(safe-area-inset-top) + 8px) max(12px,env(safe-area-inset-left)) calc(env(safe-area-inset-bottom) + 28px)}
   .phone-menu-header{padding:0 0 5px}
   .phone-menu-header h1{font-size:25px;margin:5px 0}
@@ -698,7 +701,12 @@ document.addEventListener('touchmove',(e)=>{
   const isPhoneDetail=$('#detail').classList.contains('open') &&
     window.matchMedia('(max-width:760px), (max-height:540px)').matches;
   const isPlaying=player.classList.contains('open');
-  if(!isPhoneDetail && !isPlaying && !path.some(n=>n&&n.tagName==='IFRAME') &&e.touches.length===1 &&e.cancelable)e.preventDefault();
+  // The phone app menu must accept vertical swipe-scrolling (including landscape).
+  const isPhoneMenuTouch=path.some(n=>n&&n.id==='phone-menu');
+  if(!isPhoneMenuTouch && !isPhoneDetail && !isPlaying &&
+     !path.some(n=>n&&n.tagName==='IFRAME') && e.touches.length===1 && e.cancelable){
+    e.preventDefault();
+  }
 },{passive:false});
 });
 </script>
